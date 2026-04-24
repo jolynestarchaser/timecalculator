@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.IMPLEMENTATION_PLAN.md
+*.RADIO_FEATURE_PLAN.md
