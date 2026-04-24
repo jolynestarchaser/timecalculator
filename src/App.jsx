@@ -26,6 +26,9 @@ function App() {
   const wFull = Math.floor(totalWeeks);
   const wDays = Math.round((totalWeeks - wFull) * daysPerWeek * 10) / 10;
 
+  const isTooRich = wage.length > 8;
+  const isInvalidResult = !isTooRich && price !== '' && (!Number.isFinite(totalHours) || totalHours > Number.MAX_SAFE_INTEGER);
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white text-black font-sans selection:bg-black selection:text-white">
       
@@ -62,6 +65,10 @@ function App() {
                   id="wage"
                   type="number" 
                   min="0"
+                  max="99999999"
+                  onKeyDown={(e) => {
+                    if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+                  }}
                   placeholder="400" 
                   value={wage}
                   onChange={(e) => setWage(e.target.value)}
@@ -81,6 +88,10 @@ function App() {
                   id="price"
                   type="number" 
                   min="0"
+                  max="1000000000"
+                  onKeyDown={(e) => {
+                    if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+                  }}
                   placeholder="0" 
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
@@ -123,46 +134,60 @@ function App() {
             <div className="pt-8">
               <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">เวลาที่ต้องทำงาน</h2>
               
-              <div className="space-y-4">
-                {/* Hours Level */}
-                <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
-                  {hours > 0 && (
-                    <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter">
-                      {hours} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1">ชม.</span>
-                    </span>
-                  )}
-                  {minutes > 0 && (
-                    <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter">
-                      {minutes} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1">นาที</span>
-                    </span>
-                  )}
-                  {hours === 0 && minutes === 0 && (
-                    <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter text-gray-200">
-                      0 <span className="text-2xl sm:text-3xl font-medium tracking-normal -ml-1">ชม.</span>
-                    </span>
-                  )}
+              {isTooRich ? (
+                <div className="p-6 bg-black text-white rounded-xl border border-gray-800">
+                  <p className="text-xl sm:text-2xl font-black leading-tight tracking-tight">คุณรวยเกินจะมาใช้แอพอะไรแบบนี้อีกแล้ว 💸</p>
+                  <p className="text-sm sm:text-base mt-2 text-gray-400 font-medium">เอาเวลาไปใช้ชีวิตเถอะครับ!</p>
                 </div>
+              ) : isInvalidResult ? (
+                <div className="p-6 bg-red-50 text-red-600 rounded-xl border border-red-200">
+                  <p className="text-lg font-bold">ตัวเลขสูงหรือผิดปกติเกินไป</p>
+                  <p className="text-sm mt-1">กรุณาลดจำนวนลงให้อยู่ในขอบเขตที่คำนวณได้</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    {/* Hours Level */}
+                    <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1 break-words">
+                      {hours > 0 && (
+                        <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter break-all">
+                          {hours.toLocaleString('th-TH')} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1 inline-block">ชม.</span>
+                        </span>
+                      )}
+                      {minutes > 0 && (
+                        <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter break-all">
+                          {minutes.toLocaleString('th-TH')} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1 inline-block">นาที</span>
+                        </span>
+                      )}
+                      {hours === 0 && minutes === 0 && (
+                        <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter text-gray-200">
+                          0 <span className="text-2xl sm:text-3xl font-medium tracking-normal -ml-1">ชม.</span>
+                        </span>
+                      )}
+                    </div>
 
-                {/* Days and Weeks Level */}
-                {totalHours > 0 && (
-                  <div className="flex flex-col gap-2 text-lg sm:text-xl font-medium text-gray-600 border-l-2 border-gray-200 pl-4 mt-2">
-                    <div>
-                      <span className="text-gray-400 mr-2">≈</span>
-                      <span className="font-bold text-black">{dFull}</span> วัน 
-                      {dHours > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black">{dHours}</span> ชม.</span>}
-                    </div>
-                    <div>
-                      <span className="text-gray-400 mr-2">≈</span>
-                      <span className="font-bold text-black">{wFull}</span> สัปดาห์ 
-                      {wDays > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black">{wDays}</span> วัน</span>}
-                    </div>
+                    {/* Days and Weeks Level */}
+                    {totalHours > 0 && (
+                      <div className="flex flex-col gap-2 text-lg sm:text-xl font-medium text-gray-600 border-l-2 border-gray-200 pl-4 mt-2 break-words">
+                        <div>
+                          <span className="text-gray-400 mr-2">≈</span>
+                          <span className="font-bold text-black break-all">{dFull.toLocaleString('th-TH')}</span> วัน 
+                          {dHours > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black break-all">{dHours.toLocaleString('th-TH')}</span> ชม.</span>}
+                        </div>
+                        <div>
+                          <span className="text-gray-400 mr-2">≈</span>
+                          <span className="font-bold text-black break-all">{wFull.toLocaleString('th-TH')}</span> สัปดาห์ 
+                          {wDays > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black break-all">{wDays.toLocaleString('th-TH')}</span> วัน</span>}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <p className="mt-6 text-sm font-medium text-gray-500">
-                * ตกชั่วโมงละ <span className="font-bold text-black">{hourlyRate.toLocaleString('th-TH', { maximumFractionDigits: 2 })}</span> บาท
-              </p>
+                  <p className="mt-6 text-sm font-medium text-gray-500 break-words">
+                    * ตกชั่วโมงละ <span className="font-bold text-black break-all">{hourlyRate.toLocaleString('th-TH', { maximumFractionDigits: 2 })}</span> บาท
+                  </p>
+                </>
+              )}
             </div>
           </main>
         </div>
