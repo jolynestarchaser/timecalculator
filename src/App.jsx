@@ -26,24 +26,24 @@ function App() {
   const wFull = Math.floor(totalWeeks);
   const wDays = Math.round((totalWeeks - wFull) * daysPerWeek * 10) / 10;
 
-  const isTooRich = wage.length > 8;
+  const isTooRich = wage.length > 7;
   const isInvalidResult = !isTooRich && price !== '' && (!Number.isFinite(totalHours) || totalHours > Number.MAX_SAFE_INTEGER);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white text-black font-sans selection:bg-black selection:text-white">
-      
+
       {/* Right Panel (Banner) - Rendered on top in mobile via order-1 */}
       <div className="w-full h-[40vh] md:h-screen md:w-1/2 order-1 md:order-2 bg-gray-50 flex items-center justify-center p-8 md:p-12 lg:p-16">
-        <img 
-          src="/mybanner.png" 
-          alt="Starchaser Banner" 
+        <img
+          src="/mybanner.png"
+          alt="Starchaser Banner"
           className="w-full h-full object-contain"
         />
       </div>
 
       {/* Left Panel (Content) - Rendered below banner in mobile via order-2 */}
       <div className="w-full md:w-1/2 flex flex-col justify-between p-8 sm:p-12 md:p-16 lg:p-24 order-2 md:order-1 min-h-[60vh] md:min-h-screen">
-        
+
         <div>
           {/* Header */}
           <header className="mb-16">
@@ -61,18 +61,27 @@ function App() {
                 ค่าแรงต่อวัน
               </label>
               <div className="w-full sm:w-2/3 relative flex items-center">
-                <input 
+                <input
                   id="wage"
-                  type="number" 
+                  type="number"
                   min="0"
                   max="99999999"
+                  // 1. ดักไม่ให้พิมพ์อักขระพิเศษทางคณิตศาสตร์
                   onKeyDown={(e) => {
-                    if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+                    if (["e", "E", "+", "-", "*"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
-                  placeholder="400" 
+                  placeholder="400"
                   value={wage}
-                  onChange={(e) => setWage(e.target.value)}
-                  className="w-full bg-transparent text-3xl sm:text-4xl font-bold focus:outline-none placeholder-gray-200" 
+                  // 2. เช็คว่าถ้าค่าไม่เกิน max ถึงจะยอมให้เซ็ต state
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) <= 99999999) {
+                      setWage(val);
+                    }
+                  }}
+                  className="w-full bg-transparent text-3xl sm:text-4xl font-bold focus:outline-none placeholder-gray-200"
                 />
                 <span className="text-gray-400 font-medium text-lg ml-2">THB/DAY</span>
               </div>
@@ -84,18 +93,27 @@ function App() {
                 ราคาสินค้า
               </label>
               <div className="w-full sm:w-2/3 relative flex items-center">
-                <input 
+                <input
                   id="price"
-                  type="number" 
+                  type="number"
                   min="0"
                   max="1000000000"
+                  // 1. ดักอักขระพิเศษเช่นเดียวกัน
                   onKeyDown={(e) => {
-                    if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+                    if (["e", "E", "+", "-", "*"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
-                  placeholder="0" 
+                  placeholder="0"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full bg-transparent text-3xl sm:text-4xl font-bold focus:outline-none placeholder-gray-200" 
+                  // 2. เช็คว่าถ้าค่าไม่เกิน max ถึงจะยอมให้เซ็ต state
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) <= 1000000000) {
+                      setPrice(val);
+                    }
+                  }}
+                  className="w-full bg-transparent text-3xl sm:text-4xl font-bold focus:outline-none placeholder-gray-200"
                 />
                 <span className="text-gray-400 font-medium text-lg ml-2">THB</span>
               </div>
@@ -113,9 +131,9 @@ function App() {
                   { value: 7, label: '7 วัน', sub: 'ทุกวัน' },
                 ].map(opt => (
                   <label key={opt.value} className="cursor-pointer flex items-center gap-2">
-                    <input 
-                      type="radio" 
-                      name="daysPerWeek" 
+                    <input
+                      type="radio"
+                      name="daysPerWeek"
                       value={opt.value}
                       checked={daysPerWeek === opt.value}
                       onChange={() => setDaysPerWeek(opt.value)}
@@ -133,7 +151,7 @@ function App() {
             {/* Result Area */}
             <div className="pt-8">
               <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">เวลาที่ต้องทำงาน</h2>
-              
+
               {isTooRich ? (
                 <div className="p-6 bg-black text-white rounded-xl border border-gray-800">
                   <p className="text-xl sm:text-2xl font-black leading-tight tracking-tight">คุณรวยเกินจะมาใช้แอพอะไรแบบนี้อีกแล้ว 💸</p>
@@ -171,12 +189,12 @@ function App() {
                       <div className="flex flex-col gap-2 text-lg sm:text-xl font-medium text-gray-600 border-l-2 border-gray-200 pl-4 mt-2 break-words">
                         <div>
                           <span className="text-gray-400 mr-2">≈</span>
-                          <span className="font-bold text-black break-all">{dFull.toLocaleString('th-TH')}</span> วัน 
+                          <span className="font-bold text-black break-all">{dFull.toLocaleString('th-TH')}</span> วัน
                           {dHours > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black break-all">{dHours.toLocaleString('th-TH')}</span> ชม.</span>}
                         </div>
                         <div>
                           <span className="text-gray-400 mr-2">≈</span>
-                          <span className="font-bold text-black break-all">{wFull.toLocaleString('th-TH')}</span> สัปดาห์ 
+                          <span className="font-bold text-black break-all">{wFull.toLocaleString('th-TH')}</span> สัปดาห์
                           {wDays > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black break-all">{wDays.toLocaleString('th-TH')}</span> วัน</span>}
                         </div>
                       </div>
@@ -194,18 +212,18 @@ function App() {
 
         {/* Footer */}
         <footer className="mt-16 flex flex-wrap gap-8 text-xs sm:text-sm font-bold uppercase tracking-widest">
-          <a 
-            href="https://github.com/jolynestarchaser" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            href="https://github.com/jolynestarchaser"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-1.5 hover:text-gray-500 transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black after:transition-all hover:after:w-full"
           >
             GitHub <span className="text-base font-normal">↗</span>
           </a>
-          <a 
-            href="https://www.instagram.com/starchaser.dev/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            href="https://www.instagram.com/starchaser.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-1.5 hover:text-gray-500 transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black after:transition-all hover:after:w-full"
           >
             Instagram <span className="text-base font-normal">↗</span>
