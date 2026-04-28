@@ -1,9 +1,63 @@
 import { useState } from 'react'
 
+const translations = {
+  th: {
+    subtitle: 'คำนวณเวลาที่คุณต้องจ่าย เพื่อแลกกับสิ่งที่คุณต้องการ',
+    wageLabel: 'ค่าแรงต่อวัน',
+    priceLabel: 'ราคาสินค้า',
+    scheduleLabel: 'รูปแบบการทำงาน',
+    days5: '5 วัน',
+    days5sub: 'จ–ศ',
+    days6: '6 วัน',
+    days6sub: 'จ–ส',
+    days7: '7 วัน',
+    days7sub: 'ทุกวัน',
+    resultTitle: 'เวลาที่ต้องทำงาน',
+    tooRich: 'คุณรวยเกินจะมาใช้แอพอะไรแบบนี้อีกแล้ว 💸',
+    tooRichSub: 'เอาเวลาไปใช้ชีวิตเถอะครับ!',
+    invalidTitle: 'ตัวเลขสูงหรือผิดปกติเกินไป',
+    invalidSub: 'กรุณาลดจำนวนลงให้อยู่ในขอบเขตที่คำนวณได้',
+    hrs: 'ชม.',
+    mins: 'นาที',
+    dayUnit: 'วัน',
+    and: 'และ',
+    weekUnit: 'สัปดาห์',
+    hourlyNote: '* ตกชั่วโมงละ',
+    baht: 'บาท',
+  },
+  en: {
+    subtitle: 'Calculate how much of your life you need to trade for what you want.',
+    wageLabel: 'Daily Wage',
+    priceLabel: 'Item Price',
+    scheduleLabel: 'Work Schedule',
+    days5: '5 Days',
+    days5sub: 'Mon–Fri',
+    days6: '6 Days',
+    days6sub: 'Mon–Sat',
+    days7: '7 Days',
+    days7sub: 'Everyday',
+    resultTitle: 'Time Required to Work',
+    tooRich: "You're too rich to be using an app like this 💸",
+    tooRichSub: 'Go enjoy your life!',
+    invalidTitle: 'Number is too high or invalid',
+    invalidSub: 'Please reduce the amount to a calculable range.',
+    hrs: 'hrs',
+    mins: 'min',
+    dayUnit: 'days',
+    and: 'and',
+    weekUnit: 'weeks',
+    hourlyNote: '* Hourly rate:',
+    baht: 'THB',
+  },
+}
+
 function App() {
   const [wage, setWage] = useState('')
   const [price, setPrice] = useState('')
   const [daysPerWeek, setDaysPerWeek] = useState(5)
+  const [lang, setLang] = useState('th')
+
+  const t = translations[lang]
 
   const HOURS_PER_DAY = 8;
   const actualWage = parseFloat(wage) || 400;
@@ -29,6 +83,14 @@ function App() {
   const isTooRich = wage.length > 7;
   const isInvalidResult = !isTooRich && price !== '' && (!Number.isFinite(totalHours) || totalHours > Number.MAX_SAFE_INTEGER);
 
+  const locale = lang === 'th' ? 'th-TH' : 'en-US';
+
+  const scheduleOptions = [
+    { value: 5, label: t.days5, sub: t.days5sub },
+    { value: 6, label: t.days6, sub: t.days6sub },
+    { value: 7, label: t.days7, sub: t.days7sub },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white text-black font-sans selection:bg-black selection:text-white">
 
@@ -45,12 +107,21 @@ function App() {
       <div className="w-full md:w-1/2 flex flex-col justify-between p-8 sm:p-12 md:p-16 lg:p-24 order-2 md:order-1 min-h-[60vh] md:min-h-screen">
 
         <div>
-          {/* Header */}
+          {/* Language Toggle + Header */}
           <header className="mb-16">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-tight mb-2">
-              Time is<br />Money.
-            </h1>
-            <p className="text-gray-500 font-medium">คำนวณเวลาที่คุณต้องจ่าย เพื่อแลกกับสิ่งที่คุณต้องการ</p>
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-tight">
+                Time is<br />Money.
+              </h1>
+              <button
+                onClick={() => setLang(lang === 'th' ? 'en' : 'th')}
+                className="flex-shrink-0 ml-4 px-3 py-1.5 text-xs font-bold uppercase tracking-widest border-2 border-black rounded-full hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
+                aria-label="Toggle language"
+              >
+                {lang === 'th' ? 'EN' : 'TH'}
+              </button>
+            </div>
+            <p className="text-gray-500 font-medium">{t.subtitle}</p>
           </header>
 
           {/* Form */}
@@ -58,7 +129,7 @@ function App() {
             {/* Wage Input */}
             <div className="flex flex-col sm:flex-row sm:items-baseline border-b-2 border-black pb-3 group transition-colors focus-within:border-gray-500">
               <label htmlFor="wage" className="w-full sm:w-1/3 text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-500 mb-2 sm:mb-0 transition-colors group-focus-within:text-black">
-                ค่าแรงต่อวัน
+                {t.wageLabel}
               </label>
               <div className="w-full sm:w-2/3 relative flex items-center">
                 <input
@@ -90,7 +161,7 @@ function App() {
             {/* Price Input */}
             <div className="flex flex-col sm:flex-row sm:items-baseline border-b-2 border-black pb-3 group transition-colors focus-within:border-gray-500">
               <label htmlFor="price" className="w-full sm:w-1/3 text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-500 mb-2 sm:mb-0 transition-colors group-focus-within:text-black">
-                ราคาสินค้า
+                {t.priceLabel}
               </label>
               <div className="w-full sm:w-2/3 relative flex items-center">
                 <input
@@ -122,14 +193,10 @@ function App() {
             {/* Days Per Week Input */}
             <div className="flex flex-col sm:flex-row sm:items-center border-b-2 border-black pb-3 group transition-colors focus-within:border-gray-500">
               <label className="w-full sm:w-1/3 text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-500 mb-2 sm:mb-0 transition-colors group-focus-within:text-black">
-                รูปแบบการทำงาน
+                {t.scheduleLabel}
               </label>
               <div className="w-full sm:w-2/3 flex gap-6">
-                {[
-                  { value: 5, label: '5 วัน', sub: 'จ–ศ' },
-                  { value: 6, label: '6 วัน', sub: 'จ–ส' },
-                  { value: 7, label: '7 วัน', sub: 'ทุกวัน' },
-                ].map(opt => (
+                {scheduleOptions.map(opt => (
                   <label key={opt.value} className="cursor-pointer flex items-center gap-2">
                     <input
                       type="radio"
@@ -150,17 +217,17 @@ function App() {
 
             {/* Result Area */}
             <div className="pt-8">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">เวลาที่ต้องทำงาน</h2>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">{t.resultTitle}</h2>
 
               {isTooRich ? (
                 <div className="p-6 bg-black text-white rounded-xl border border-gray-800">
-                  <p className="text-xl sm:text-2xl font-black leading-tight tracking-tight">คุณรวยเกินจะมาใช้แอพอะไรแบบนี้อีกแล้ว 💸</p>
-                  <p className="text-sm sm:text-base mt-2 text-gray-400 font-medium">เอาเวลาไปใช้ชีวิตเถอะครับ!</p>
+                  <p className="text-xl sm:text-2xl font-black leading-tight tracking-tight">{t.tooRich}</p>
+                  <p className="text-sm sm:text-base mt-2 text-gray-400 font-medium">{t.tooRichSub}</p>
                 </div>
               ) : isInvalidResult ? (
                 <div className="p-6 bg-red-50 text-red-600 rounded-xl border border-red-200">
-                  <p className="text-lg font-bold">ตัวเลขสูงหรือผิดปกติเกินไป</p>
-                  <p className="text-sm mt-1">กรุณาลดจำนวนลงให้อยู่ในขอบเขตที่คำนวณได้</p>
+                  <p className="text-lg font-bold">{t.invalidTitle}</p>
+                  <p className="text-sm mt-1">{t.invalidSub}</p>
                 </div>
               ) : (
                 <>
@@ -169,17 +236,17 @@ function App() {
                     <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1 break-words">
                       {hours > 0 && (
                         <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter break-all">
-                          {hours.toLocaleString('th-TH')} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1 inline-block">ชม.</span>
+                          {hours.toLocaleString(locale)} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1 inline-block">{t.hrs}</span>
                         </span>
                       )}
                       {minutes > 0 && (
                         <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter break-all">
-                          {minutes.toLocaleString('th-TH')} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1 inline-block">นาที</span>
+                          {minutes.toLocaleString(locale)} <span className="text-2xl sm:text-3xl text-gray-400 font-medium tracking-normal -ml-1 inline-block">{t.mins}</span>
                         </span>
                       )}
                       {hours === 0 && minutes === 0 && (
                         <span className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter text-gray-200">
-                          0 <span className="text-2xl sm:text-3xl font-medium tracking-normal -ml-1">ชม.</span>
+                          0 <span className="text-2xl sm:text-3xl font-medium tracking-normal -ml-1">{t.hrs}</span>
                         </span>
                       )}
                     </div>
@@ -189,20 +256,20 @@ function App() {
                       <div className="flex flex-col gap-2 text-lg sm:text-xl font-medium text-gray-600 border-l-2 border-gray-200 pl-4 mt-2 break-words">
                         <div>
                           <span className="text-gray-400 mr-2">≈</span>
-                          <span className="font-bold text-black break-all">{dFull.toLocaleString('th-TH')}</span> วัน
-                          {dHours > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black break-all">{dHours.toLocaleString('th-TH')}</span> ชม.</span>}
+                          <span className="font-bold text-black break-all">{dFull.toLocaleString(locale)}</span> {t.dayUnit}
+                          {dHours > 0 && <span> <span className="text-gray-400 font-normal">{t.and}</span> <span className="font-bold text-black break-all">{dHours.toLocaleString(locale)}</span> {t.hrs}</span>}
                         </div>
                         <div>
                           <span className="text-gray-400 mr-2">≈</span>
-                          <span className="font-bold text-black break-all">{wFull.toLocaleString('th-TH')}</span> สัปดาห์
-                          {wDays > 0 && <span> <span className="text-gray-400 font-normal">และ</span> <span className="font-bold text-black break-all">{wDays.toLocaleString('th-TH')}</span> วัน</span>}
+                          <span className="font-bold text-black break-all">{wFull.toLocaleString(locale)}</span> {t.weekUnit}
+                          {wDays > 0 && <span> <span className="text-gray-400 font-normal">{t.and}</span> <span className="font-bold text-black break-all">{wDays.toLocaleString(locale)}</span> {t.dayUnit}</span>}
                         </div>
                       </div>
                     )}
                   </div>
 
                   <p className="mt-6 text-sm font-medium text-gray-500 break-words">
-                    * ตกชั่วโมงละ <span className="font-bold text-black break-all">{hourlyRate.toLocaleString('th-TH', { maximumFractionDigits: 2 })}</span> บาท
+                    {t.hourlyNote} <span className="font-bold text-black break-all">{hourlyRate.toLocaleString(locale, { maximumFractionDigits: 2 })}</span> {t.baht}
                   </p>
                 </>
               )}
